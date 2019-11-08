@@ -5,9 +5,9 @@ Checks a model before conversion to flag unsupported features
 
 # imports
 import numpy as np
-from keras2c.io_parsing import layer_type, flatten
-from keras2c.weights2c import Weights2C
-from keras2c.layer2c import Layers2C
+from io_parsing import layer_type, flatten
+from weights2c import Weights2C
+from layer2c import Layers2C
 
 
 __author__ = "Rory Conlin"

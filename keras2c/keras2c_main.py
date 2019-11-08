@@ -6,12 +6,12 @@ Converts keras model to C code
 # imports
 import keras
 import numpy as np
-from keras2c.make_test_suite import make_test_suite
-from keras2c.check_model import check_model
-from keras2c.io_parsing import layer_type, get_all_io_names, get_layer_io_names, \
+from make_test_suite import make_test_suite
+from check_model import check_model
+from io_parsing import layer_type, get_all_io_names, get_layer_io_names, \
     get_model_io_names, flatten
-from keras2c.weights2c import Weights2C
-from keras2c.layer2c import Layers2C
+from weights2c import Weights2C
+from layer2c import Layers2C
 
 
 __author__ = "Rory Conlin"
@@ -85,16 +85,22 @@ def write_function_terminate(file, function_name, malloc_vars):
     file.write(s)
 
 
-def k2c(model, function_name, malloc=False, num_tests=10):
-
-    function_name = str(function_name)
-    filename = function_name + '.h'
-    if isinstance(model, str):
-        model = keras.models.load_model(model, compile=False)
-    elif not isinstance(model, (keras.models.Model,
+def k2c(model, function_name, malloc=False, num_tests=10,frnn_model=False,frnn_path=None):
+    if frnn_model==True:
+       import frnn_model_loader
+       model=frnn_model_loader.frnn_model_loader(frnn_path)
+       function_name = str(function_name)
+       filename = function_name + '.h'
+    else:
+       function_name = str(function_name)
+       filename = function_name + '.h'
+    
+       if isinstance(model, str):
+           model = keras.models.load_model(model, compile=False)
+       elif not isinstance(model, (keras.models.Model,
                                 keras.engine.training.Model)):
 
-        raise ValueError('Unknown model type. Model should ' +
+            raise ValueError('Unknown model type. Model should ' +
                          'either be an instance of keras.models.Model, ' +
                          'or a filepath to a saved .h5 model')
 

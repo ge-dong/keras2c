@@ -5,7 +5,7 @@ Gets weights and other parameters from each layer and writes to C file
 
 # imports
 import numpy as np
-from keras2c.io_parsing import layer_type, get_layer_io_names, get_model_io_names
+from io_parsing import layer_type, get_layer_io_names, get_model_io_names
 maxndim = 5
 
 

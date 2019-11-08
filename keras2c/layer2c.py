@@ -4,7 +4,7 @@ Writes individual layers to C code
 """
 
 # imports
-from keras2c.io_parsing import layer_type, get_model_io_names, get_all_io_names, get_layer_io_names, flatten
+from io_parsing import layer_type, get_model_io_names, get_all_io_names, get_layer_io_names, flatten
 
 
 __author__ = "Rory Conlin"

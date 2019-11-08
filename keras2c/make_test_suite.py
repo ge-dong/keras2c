@@ -5,8 +5,8 @@ Converts keras model to C code
 
 # imports
 import numpy as np
-from keras2c.io_parsing import get_model_io_names
-from keras2c.weights2c import Weights2C
+from io_parsing import get_model_io_names
+from weights2c import Weights2C
 
 __author__ = "Rory Conlin"
 __copyright__ = "Copyright 2019, Rory Conlin"

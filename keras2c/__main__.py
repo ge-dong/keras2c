@@ -4,7 +4,7 @@ Runs keras2c
 """
 import argparse
 import sys
-from keras2c.keras2c_main import k2c
+from keras2c_main import k2c
 
 
 __author__ = "Rory Conlin"
@@ -44,7 +44,8 @@ def main(args=sys.argv[1:]):
     else:
         num_tests = 10
 
-    k2c(args.model_path, args.function_name, malloc, num_tests)
+    custom_path = sys.argv[1]
+    k2c(args.model_path, args.function_name, malloc, num_tests,frnn_model=True,frnn_path=custom_path)
 
 
 if __name__ == '__main__':
