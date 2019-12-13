@@ -24,12 +24,25 @@ def build_and_run(name):
         ccflags = '-g -Og -std=c99 -fprofile-arcs -ftest-coverage -I./include/'
     else:
         ccflags = '-Ofast -std=c99 -I./include/'
-    cc = 'gcc ' + ccflags + ' -o ' + name + ' ' + name + '_test_suite.c -lm'
-    subprocess.run(cc.split())
-    rcode = subprocess.run(['./' + name]).returncode
-    if not rcode and not os.environ.get('CI'):
-        subprocess.run('rm ' + name + '*', shell=True)
-    return rcode
+    cc = 'gcc ' + ccflags + '-I' + name + '.h ' + ' -o ' + name + ' ' + \
+        './include/k2c_activations.c ' + \
+        './include/k2c_convolution_layers.c ' + \
+        './include/k2c_core_layers.c ' + \
+        './include/k2c_embedding_layers.c ' + \
+        './include/k2c_helper_functions.c ' + \
+        './include/k2c_merge_layers.c ' + \
+        './include/k2c_normalization_layers.c ' + \
+        './include/k2c_pooling_layers.c ' + \
+        './include/k2c_recurrent_layers.c ' + \
+        name + '.c ' + name + '_test_suite.c -lm'
+    buildcode = subprocess.run(cc.split()).returncode
+    if not buildcode:
+        rcode = subprocess.run(['./' + name]).returncode
+        if not rcode and not os.environ.get('CI'):
+            subprocess.run('rm ' + name + '*', shell=True)
+        return rcode
+    else:
+        return buildcode
 
 
 class TestCoreLayers(unittest.TestCase):
@@ -194,6 +207,26 @@ class TestNormalization(unittest.TestCase):
                                             scale=False, center=False)(a)
         model = keras.models.Model(inputs=a, outputs=b)
         name = 'test___BatchNorm4' + str(int(time.time()))
+        keras2c_main.k2c(model, name)
+        rcode = build_and_run(name)
+        self.assertEqual(rcode, 0)
+
+
+class TestSharedLayers(unittest.TestCase):
+    """tests for shared layers"""
+
+    def test_SharedLayer1(self):
+        inshp = (10, 20)
+        xi = keras.layers.Input(inshp)
+        x = keras.layers.Dense(20, activation='relu')(xi)
+        yi = keras.layers.Input(inshp)
+        y = keras.layers.Dense(20, activation='relu')(yi)
+        f = keras.layers.Dense(30, activation='relu')
+        x = f(x)
+        y = f(y)
+        z = keras.layers.Add()([x, y])
+        model = keras.models.Model(inputs=[xi, yi], outputs=z)
+        name = 'test___SharedLayer1' + str(int(time.time()))
         keras2c_main.k2c(model, name)
         rcode = build_and_run(name)
         self.assertEqual(rcode, 0)

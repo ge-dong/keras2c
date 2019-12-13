@@ -6,12 +6,12 @@ Converts keras model to C code
 # imports
 import keras
 import numpy as np
-from make_test_suite import make_test_suite
-from check_model import check_model
-from io_parsing import layer_type, get_all_io_names, get_layer_io_names, \
+from keras2c.make_test_suite import make_test_suite
+from keras2c.check_model import check_model
+from keras2c.io_parsing import layer_type, get_all_io_names, get_layer_io_names, \
     get_model_io_names, flatten
-from weights2c import Weights2C
-from layer2c import Layers2C
+from keras2c.weights2c import Weights2C
+from keras2c.layer2c import Layers2C
 
 
 __author__ = "Rory Conlin"
@@ -23,15 +23,16 @@ __email__ = "wconlin@princeton.edu"
 
 def model2c(model, file, function_name, malloc=False):
     model_inputs, model_outputs = get_model_io_names(model)
-    s = "#ifndef " + function_name.upper() + "_H \n"
-    s += "#define " + function_name.upper() + "_H \n"
-    s += '#include <stdio.h> \n#include <stddef.h> \n#include <math.h> \n#include <string.h> \n'
-    s += '#include <stdarg.h> \n#include "k2c_include.h" \n'
+    s = '#include <math.h> \n '
+    s += '#include <string.h> \n'
+    s += '#include "./include/k2c_include.h" \n'
+    s += '#include "./include/k2c_tensor_include.h" \n'
     s += '\n \n'
     file.write(s)
 
     print('Gathering Weights')
-    stack_vars, malloc_vars = Weights2C(model, malloc).write_weights()
+    stack_vars, malloc_vars, static_vars = Weights2C(
+        model, function_name, malloc).write_weights()
     layers = Layers2C(model, malloc).write_layers()
 
     function_signature = 'void ' + function_name + '('
@@ -42,27 +43,50 @@ def model2c(model, file, function_name, malloc=False):
     if len(malloc_vars.keys()):
         function_signature += ',' + ','.join(['float* ' +
                                               key for key in malloc_vars.keys()])
-    function_signature += ') { \n\n'
-
+    function_signature += ')'
+    file.write(static_vars + '\n\n')
     file.write(function_signature)
+    file.write(' { \n\n')
     file.write(stack_vars)
     file.write(layers)
     file.write('\n } \n\n')
+    stateful = len(static_vars) > 0
 
-    write_function_initialize(file, function_name, malloc_vars)
-    write_function_terminate(file, function_name, malloc_vars)
-    s = "#endif /* " + function_name.upper() + "_H */"
+    init_sig = write_function_initialize(file, function_name, malloc_vars)
+    term_sig = write_function_terminate(file, function_name, malloc_vars)
+    if stateful:
+        reset_sig = write_function_reset(file, function_name)
+    with open(function_name + '1.h', 'x+') as header:
+        header.write('#pragma once \n')
+        header.write('#include "./include/k2c_tensor_include.h" \n')
+        header.write(function_signature + '; \n')
+        header.write(init_sig + '; \n')
+        header.write(term_sig + '; \n')
+
+        if stateful:
+            header.write(reset_sig + '; \n')
+
+    return malloc_vars.keys(), stateful
+
+
+def write_function_reset(file, function_name):
+    function_reset_signature = 'void ' + function_name + '_reset_states()'
+    file.write(function_reset_signature)
+    s = ' { \n\n'
+    s += 'memset(&' + function_name + \
+         '_states,0,sizeof(' + function_name + '_states)); \n'
+    s += "} \n\n"
     file.write(s)
-    return malloc_vars.keys()
+    return function_reset_signature
 
 
 def write_function_initialize(file, function_name, malloc_vars):
     function_init_signature = 'void ' + function_name + '_initialize('
     function_init_signature += ','.join(['float** ' +
-                                         key for key in malloc_vars.keys()])
-    function_init_signature += ') { \n\n'
+                                         key + ' \n' for key in malloc_vars.keys()])
+    function_init_signature += ')'
     file.write(function_init_signature)
-    s = ''
+    s = ' { \n\n'
     for key in malloc_vars.keys():
         fname = function_name + key + ".csv"
         np.savetxt(fname, malloc_vars[key], fmt="%.8e", delimiter=',')
@@ -70,37 +94,39 @@ def write_function_initialize(file, function_name, malloc_vars):
             fname + "\"," + str(malloc_vars[key].size) + "); \n"
     s += "} \n\n"
     file.write(s)
+    return function_init_signature
 
 
 def write_function_terminate(file, function_name, malloc_vars):
     function_term_signature = 'void ' + function_name + '_terminate('
     function_term_signature += ','.join(['float* ' +
                                          key for key in malloc_vars.keys()])
-    function_term_signature += ') { \n\n'
+    function_term_signature += ')'
     file.write(function_term_signature)
-    s = ''
+    s = ' { \n\n'
     for key in malloc_vars.keys():
         s += "free(" + key + "); \n"
     s += "} \n\n"
     file.write(s)
+    return function_term_signature
 
 
-def k2c(model, function_name, malloc=False, num_tests=10,frnn_model=False,frnn_path=None):
+def k2c(model, function_name, malloc=False, num_tests=10):
+    frnn_model = True # False #True
+    function_name = str(function_name)
+    filename = function_name + '.c'
+
     if frnn_model==True:
        import frnn_model_loader
-       model=frnn_model_loader.frnn_model_loader(frnn_path)
+       model=frnn_model_loader.frnn_model_loader(model)
        function_name = str(function_name)
        filename = function_name + '.h'
-    else:
-       function_name = str(function_name)
-       filename = function_name + '.h'
-    
-       if isinstance(model, str):
-           model = keras.models.load_model(model, compile=False)
-       elif not isinstance(model, (keras.models.Model,
+    elif isinstance(model, str):
+        model = keras.models.load_model(model, compile=False)
+    elif not isinstance(model, (keras.models.Model,
                                 keras.engine.training.Model)):
 
-            raise ValueError('Unknown model type. Model should ' +
+        raise ValueError('Unknown model type. Model should ' +
                          'either be an instance of keras.models.Model, ' +
                          'or a filepath to a saved .h5 model')
 
@@ -109,12 +135,12 @@ def k2c(model, function_name, malloc=False, num_tests=10,frnn_model=False,frnn_p
     print('All checks passed')
 
     file = open(filename, "x+")
-    malloc_vars = model2c(model, file, function_name, malloc)
+    malloc_vars, stateful = model2c(model, file, function_name, malloc)
     file.close()
     s = 'Done \n'
     s += "C code is in '" + function_name + ".h' \n"
     if num_tests > 0:
-        make_test_suite(model, function_name, malloc_vars, num_tests)
+        make_test_suite(model, function_name, malloc_vars, num_tests, stateful)
         s += "Tests are in '" + function_name + "_test_suite.c' \n"
     if malloc:
         s += "Weight arrays are in .csv files of the form 'model_name_layer_name_array_type.csv' \n"

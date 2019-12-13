@@ -44,8 +44,7 @@ def main(args=sys.argv[1:]):
     else:
         num_tests = 10
 
-    custom_path = sys.argv[1]
-    k2c(args.model_path, args.function_name, malloc, num_tests,frnn_model=True,frnn_path=custom_path)
+    k2c(args.model_path, args.function_name, malloc, num_tests)
 
 
 if __name__ == '__main__':

@@ -5,9 +5,9 @@ Checks a model before conversion to flag unsupported features
 
 # imports
 import numpy as np
-from io_parsing import layer_type, flatten
-from weights2c import Weights2C
-from layer2c import Layers2C
+from keras2c.io_parsing import layer_type, flatten
+from keras2c.weights2c import Weights2C
+from keras2c.layer2c import Layers2C
 
 
 __author__ = "Rory Conlin"
@@ -90,10 +90,6 @@ def config_supported_check(model):
         if config.get('return_state'):
             valid = False
             log += "'return_state' option for layer '" + layer.name + \
-                   "' is not supported at this time. \n"
-        if config.get('stateful'):
-            valid = False
-            log += "'stateful' option for layer '" + layer.name + \
                    "' is not supported at this time. \n"
         if config.get('shared_axes'):
             valid = False
