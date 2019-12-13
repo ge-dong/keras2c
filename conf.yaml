@@ -68,7 +68,7 @@ model:
   pred_length: 1 #200
   regularization: 0.0
   return_sequences: false #true
-  rnn_layers: 2
+  rnn_layers: 1 ## 2
   rnn_size: 200
   rnn_type: LSTM
   extra_dense_input: False
@@ -90,7 +90,7 @@ model:
   warmup_steps: 0
 num_gpus: 4
 paths:
-  data: d3d_data #_0D
+  data: d3d_data_0D #_0D
   executable: mpi_learn.py
   shallow_executable: learn.py
   shot_list_dir: /shot_lists/
