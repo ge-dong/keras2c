@@ -1,0 +1,12 @@
+q95 safety factor, EFITRT01/RESULTS.AEQDSK.Q95, 1.0000
+internal inductance, d3d/efsli, 0.20346334100734761
+plasma current, d3d/ipspr15V, 0.38240318391035033 
+Locked mode amplitude, d3d/dusbradial, 1.148110471956936
+Normalized Beta, d3d/efsbetan, 0.6942589518425222
+stored energy, d3d/efswmhdi, 280822.1992663217
+Plasma density, d3d/dssdenest, 1.2027909365015048
+Input Power (beam for d3d), d3d/bmspinj,1870.0840581067669
+Input Beam Torque, d3d/bmstinj, 1.4790948526763552
+plasma current direction, d3d/iptdirect, 1.0
+plasma current target, d3d/ipsiptargt, 0.39434510041254367
+plasma current error, d3d/ipeecoil, 0.030855128322150812
