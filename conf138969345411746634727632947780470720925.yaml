@@ -7,12 +7,12 @@ callbacks:
   - train_loss
   mode: max
   monitor: val_roc
-  patience: 15
+  patience: 10
   write_grads: false
 data:
   T_max: 1000.0
   T_min_warn: 30
-  T_warning: 8
+  T_warning: 10.024
   augment_during_training: false
   augmentation_mode: none
   bleed_in: 0
@@ -34,7 +34,7 @@ data:
   window_decay: 2
   window_size: 10
 env:
-  name: ppltest
+  name: pplori
   type: anaconda3
 fs_path: /tigress
 model:
@@ -43,27 +43,27 @@ model:
   backend: tensorflow
   clipnorm: 10.0
   dense_regularization: 0.01
-  dense_size: 8
-  dropout_prob: 0.01
-  extra_dense_input: false
+  dense_size: 20
+  dropout_prob: 0.1
+  extra_dense_input: False # 2 # false
   ignore_timesteps: 100
   keras_tcn: false
   kernel_size_spatial: 7
   kernel_size_temporal: 8
-  length: 1 # 200
+  length: 1 #200
   loss_scale_factor: 1.0
-  lr: 2.6168303406588096e-05
-  lr_decay: 0.97
-  num_conv_filters: 64
-  num_conv_layers: 3
+  lr: 1.745790965846188e-05
+  lr_decay: 0.985
+  num_conv_filters: 5
+  num_conv_layers: 1
   optimizer: adam
   pool_size: 2
   pred_batch_size: 1 #128
-  pred_length: 1 #  200
+  pred_length: 1 #200
   regularization: 0.0
-  return_sequences: false #  true
+  return_sequences: false # true
   rnn_layers: 1
-  rnn_size: 64
+  rnn_size: 128 #200
   rnn_type: LSTM
   shallow: false
   shallow_model:
@@ -76,7 +76,7 @@ model:
     scale_pos_weight: 10.0
     skip_train: false
     type: xgboost
-  simple_conv: false
+  simple_conv: true
   size_conv_filters: 3
   skip: 1
   stateful: true
@@ -103,12 +103,13 @@ paths:
   - /../FRNN/signal_data_new_REAL_TIME/
   - /signal_data/
   specific_signals: []
+
   tensorboard_save_path: /Graph/
 target: ttd
 training:
   as_array_of_shots: true
   batch_generator_warmup_steps: 0
-  batch_size: 1 # 128 #128
+  batch_size: 1 # 256 #512 # 128
   data_parallel: false
   hyperparam_tuning: true
   max_patch_length: 100000
