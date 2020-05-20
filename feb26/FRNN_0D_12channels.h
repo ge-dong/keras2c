@@ -1,7 +1,7 @@
 #include <math.h> 
  #include <string.h> 
-#include "./include/k2c_include.h" 
-#include "./include/k2c_tensor_include.h" 
+#include "../include/k2c_include.h" 
+#include "../include/k2c_tensor_include.h" 
 
  
 static struct FRNN_0D_12channels_static_vars 

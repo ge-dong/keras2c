@@ -1,13 +1,13 @@
 q95 safety factor in real time, EFITRT1/RESULTS.AEQDSK.Q95, 1.0
-internal inductance, /efsli, 0.29301022970278967
-plasma current ipsip, /ipsip, 0.22328409203321836
-Locked mode amplitude, /dusbradial, 1.178312234103953
-Normalized Beta, /efsbetan, 0.730256328597649
-stored energy, /efswmhd, 276869.57619960007
-Plasma density, /dssdenest, 1.2788804630291082
-Input Power (beam for d3d), /bmspinj, 2162.8693026811284
-Input Beam Torque, /bmstinj, 1.6698915772007175
+internal inductance, /efsli, 3.412850128182672
+plasma current ipsip, /ipsip, 4.478599397270219
+Locked mode amplitude, /dusbradial, 0.84867149050731
+Normalized Beta, /efsbetan, 1.369382175599018
+stored energy, /efswmhd, 3.6118089019614157e-06
+Plasma density, /dssdenest, 0.7819339093127106
+Input Power (beam for d3d), /bmspinj, 0.00046234878767773143
+Input Beam Torque, /bmstinj, 0.5988412742798104
 plasma current direction, /iptdirect, 1.0
-plasma current target, /ipsiptargt, 0.47655777211258454
-plasma current error, /ipeecoil, 0.039813190188149376
+plasma current target, /ipsiptargt, 2.0983814733877737
+plasma current error, /ipeecoil, 25.117303970724148
 
